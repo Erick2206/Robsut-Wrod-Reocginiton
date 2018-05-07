@@ -28,6 +28,7 @@ class vectorizeData:
         self.alph = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,:;'*!?`$%&(){}[]-/\@_#"
         self.jumble_type = jumble_type
 
+
     def loadData(self, path):
         '''
         Load the data from the path
@@ -49,9 +50,9 @@ class vectorizeData:
         self.trainData = self.loadData(self.TrainPath)
         self.trainCleaned = open(TrainPath).read().replace('\n', '<eos>')
 
-    def vectorizeData(self):
-        XVec = np.zeros(int(len(self.trainCleaned)/self.batchSize), self.batchSize, len(self.alph))
-        YVec = np.zeros(int(len(self.trainCleaned)/self.batchSize), self.batchSize, len(self.vocab))
+    def vectorizeData(self, vec_cleaned):
+        XVec = np.zeros(int(len(vec_cleaned)/self.batchSize), self.batchSize, len(self.alph))
+        YVec = np.zeros(int(len(vec_cleaned)/self.batchSize), self.batchSize, len(self.vocab))
         X_token = []
 
         for i, miniBatchTokens in enumerate(zip(*iter()*self.batchSize)):
@@ -60,7 +61,7 @@ class vectorizeData:
             yMiniBatch = np.zeros((self.batchSize), len(self.vocab))
 
             for j,token in enumerate(miniBatchTokens):
-                if jumble_type = 'NO':
+                if jumble_type == 'NO':
                     xMiniBatch[j], x_token = self.addNoise(token, noise_type)
                 else:
                     xMiniBatch[j], x_token = self.jumbleChar(token, jumble_type)
@@ -83,6 +84,11 @@ class vectorizeData:
         return X_vec, Y_vec, X_token
 
 
+    def load(self):
+        X_train, Y_train, X_train_token = self.vectorizeData(self.trainCleaned)
+        print X_train.shape
+        print Y_train.shape
+
     def hasNum(self, word):
         for char in word:
             if char.isdigit():
@@ -93,9 +99,9 @@ class vectorizeData:
     def addNoise(self, word, noise_type):
         if noise_type == "DELETE":
             bin_all = [0] * len(self.alph)
-            if word = '<eos>':
+            if word == '<eos>':
                 bin_all[-1] += 1
-            elif word = '<unk>':
+            elif word == '<unk>':
                 bin_all[-2] +=1
             elif self.hasNum(word):
                 bin_all[-3] += 1
@@ -114,9 +120,9 @@ class vectorizeData:
 
         if noise_type == "INSERT":
             bin_all = [0] * len(self.alph)
-            if word = '<eos>':
+            if word == '<eos>':
                 bin_all[-1] += 1
-            elif word = '<unk>':
+            elif word == '<unk>':
                 bin_all[-2] +=1
             elif self.hasNum(word):
                 bin_all[-3] += 1
@@ -138,9 +144,9 @@ class vectorizeData:
 
         if noise_type == "REPLACE"
             bin_all = [0] * len(self.alph)
-            if word = '<eos>':
+            if word == '<eos>':
                 bin_all[-1] += 1
-            elif word = '<unk>':
+            elif word == '<unk>':
                 bin_all[-2] +=1
             elif self.hasNum(word):
                 bin_all[-3] += 1
@@ -164,9 +170,9 @@ class vectorizeData:
         if jumble_type == "WHOLE":
             bin_all = [0] * len(self.alph)
             bin_filler = [0] * (len(self.alph) * 2)
-            if word = '<eos>':
+            if word == '<eos>':
                 bin_all[-1] += 1
-            elif word = '<unk>':
+            elif word == '<unk>':
                 bin_all[-2] +=1
             elif self.hasNum(word):
                 bin_all[-3] += 1
