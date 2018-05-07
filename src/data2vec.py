@@ -13,7 +13,7 @@ class vectorizeData:
     would be used as an input to our scRNN model.
     Structure of the vector: [Beg,Int,End]
     '''
-    def __init(self, TrainPath, TestPath, batchSize, jumble_type = "NO", noise_type = "INSERT"):
+    def __init__(self, TrainPath, TestPath, batchSize, jumble_type = "NO", noise_type = "INSERT"):
         '''
         inp:
         TrainPath -> Path of training data
@@ -33,26 +33,28 @@ class vectorizeData:
         '''
         Load the data from the path
         '''
+
         self.vocab = {}
         self.idx2vocab = {}
-        words = open(path).read().replace('\n', '<eos>')
-        self.wordsDataset = np.ndarray((len(words),), dtype=np.int32)
+        words = open(path).read().replace('\n', '<eos>').strip().split()
+        wordsDataset = np.ndarray((len(words),), dtype=np.int32)
 
         for i,word in enumerate(words):
             #Generate one hot encoding for every word
-            if word not in vocab:
+            if word not in self.vocab:
                 self.vocab[word] = len(self.vocab)
                 self.idx2vocab[self.vocab[word]] = word
 
-            self.wordsDataset[i] = vocab[word]
+            wordsDataset[i] = self.vocab[word]
+        return wordsDataset
 
     def loadVectors(self):
         self.trainData = self.loadData(self.TrainPath)
-        self.trainCleaned = open(TrainPath).read().replace('\n', '<eos>')
+        self.trainCleaned = open(self.TrainPath).read().replace('\n', '<eos>').strip().split()
 
     def vectorizeData(self, vec_cleaned):
-        XVec = np.zeros(int(len(vec_cleaned)/self.batchSize), self.batchSize, len(self.alph))
-        YVec = np.zeros(int(len(vec_cleaned)/self.batchSize), self.batchSize, len(self.vocab))
+        XVec = np.zeros((int(len(vec_cleaned)/self.batchSize), self.batchSize, len(self.alph)))
+        YVec = np.zeros((int(len(vec_cleaned)/self.batchSize), self.batchSize, len(self.vocab)))
         X_token = []
 
         for i, miniBatchTokens in enumerate(zip(*iter()*self.batchSize)):
@@ -85,6 +87,7 @@ class vectorizeData:
 
 
     def load(self):
+        self.loadVectors()
         X_train, Y_train, X_train_token = self.vectorizeData(self.trainCleaned)
         print X_train.shape
         print Y_train.shape
@@ -142,7 +145,7 @@ class vectorizeData:
             return np.array(bin_all * 3), w
 
 
-        if noise_type == "REPLACE"
+        if noise_type == "REPLACE":
             bin_all = [0] * len(self.alph)
             if word == '<eos>':
                 bin_all[-1] += 1
@@ -209,7 +212,7 @@ class vectorizeData:
                 for i in range(len(w)):
                     try:
                         if i==len(w)-1:
-                            bin_end[self.alph.index(w[i]) += 1
+                            bin_end[self.alph.index(w[i])] += 1
                         else:
                             bin_initial[i] +=1
 
@@ -295,3 +298,4 @@ if __name__ == "__main__":
     testPath = './data/ptb.test.txt'
     batchSize = 20
     data = vectorizeData(trainPath, testPath, batchSize)
+    data.load()
