@@ -296,6 +296,6 @@ class vectorizeData:
 if __name__ == "__main__":
     trainPath = './data/ptb.train.txt'
     testPath = './data/ptb.test.txt'
-    batchSize = 20
+    batchSize = 50
     data = vectorizeData(trainPath, testPath, batchSize)
     data.load()
